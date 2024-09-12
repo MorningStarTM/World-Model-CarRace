@@ -76,3 +76,12 @@ class Autoencoder(nn.Module):
         latent = self.encoder(x)
         reconstructed = self.decoder(latent)
         return reconstructed
+    
+
+    def save(self, encoder_path, decoder_path):
+        self.encoder.save(encoder_path)
+        self.decoder.save(decoder_path)
+
+    def load(self, encoder_path, decoder_path):
+        self.encoder.load(encoder_path)
+        self.decoder.load(decoder_path)
