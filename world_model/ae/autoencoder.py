@@ -69,6 +69,7 @@ class Decoder(nn.Module):
 class Autoencoder(nn.Module):
     def __init__(self, latent_dim=(3, 3, 3)):
         super(Autoencoder, self).__init__()
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.encoder = Encoder(latent_dim)
         self.decoder = Decoder(latent_dim)
     
@@ -85,3 +86,20 @@ class Autoencoder(nn.Module):
     def load(self, encoder_path, decoder_path):
         self.encoder.load(encoder_path)
         self.decoder.load(decoder_path)
+
+
+
+"""# Example usage
+if __name__ == '__main__':
+    # Instantiate the autoencoder
+    latent_dim = (3, 3, 3)
+    autoencoder = Autoencoder(latent_dim)
+    autoencoder.to(autoencoder.device)
+
+    # Example input (batch size of 1 for simplicity)
+    input_image = torch.rand((1, 3, 96, 96)).to(autoencoder.device)  # Random image with shape (1, 3, 96, 96)
+
+    # Forward pass
+    output_image = autoencoder(input_image)
+    print("Input shape:", input_image.shape)
+    print("Output shape:", output_image.shape)"""
