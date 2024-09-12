@@ -62,3 +62,17 @@ class Decoder(nn.Module):
 
     def load(self, path):
         self.load_state_dict(torch.load(path))
+
+
+
+# Autoencoder class that combines Encoder and Decoder
+class Autoencoder(nn.Module):
+    def __init__(self, latent_dim=(3, 3, 3)):
+        super(Autoencoder, self).__init__()
+        self.encoder = Encoder(latent_dim)
+        self.decoder = Decoder(latent_dim)
+    
+    def forward(self, x):
+        latent = self.encoder(x)
+        reconstructed = self.decoder(latent)
+        return reconstructed
