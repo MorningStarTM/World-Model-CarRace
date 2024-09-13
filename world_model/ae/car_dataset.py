@@ -21,3 +21,10 @@ class ImageDataset(Dataset):
         if self.transform:
             image = self.transform(image)
         return image
+    
+
+# Define image transformations (resize and convert to tensor)
+transform = transforms.Compose([
+    transforms.Resize((96, 96)),  # Resize images to (96, 96)
+    transforms.ToTensor()         # Convert images to PyTorch tensors
+])
