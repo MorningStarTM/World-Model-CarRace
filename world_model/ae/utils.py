@@ -41,3 +41,31 @@ class Utils:
 
         print("Training completed.")
 
+
+    def plot_result(self, original, reconstructed, n=8):
+        """
+        Plot n original images and their corresponding reconstructed images.
+        
+        :param original: Batch of original images (Tensor)
+        :param reconstructed: Batch of reconstructed images (Tensor)
+        :param n: Number of images to display
+        """
+        # Select the first n images
+        original = original[:n].cpu().detach()
+        reconstructed = reconstructed[:n].cpu().detach()
+
+        # Set up the plot grid
+        fig, axes = plt.subplots(2, n, figsize=(15, 5))
+
+        for i in range(n):
+            # Plot original images
+            axes[0, i].imshow(original[i].permute(1, 2, 0))  # Convert from (C, H, W) to (H, W, C)
+            axes[0, i].axis('off')
+            axes[0, i].set_title("Original")
+
+            # Plot reconstructed images
+            axes[1, i].imshow(reconstructed[i].permute(1, 2, 0))  # Convert from (C, H, W) to (H, W, C)
+            axes[1, i].axis('off')
+            axes[1, i].set_title("Reconstructed")
+
+        plt.show()
