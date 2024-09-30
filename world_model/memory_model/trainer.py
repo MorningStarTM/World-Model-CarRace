@@ -80,3 +80,20 @@ class MDNRNNTrainer:
         self.model.load_state_dict(torch.load(path, map_location=self.device))
         self.model.to(self.device)
         print(f"Model loaded from {path}")
+
+
+    def mdn_loss(self, pi, mu, sigma, target):
+        """
+        Compute the Mixture Density Network loss (Negative Log-Likelihood).
+        
+        Parameters:
+        - pi: Mixing coefficients from the MDN.
+        - mu: Means of the Gaussians from the MDN.
+        - sigma: Standard deviations of the Gaussians from the MDN.
+        - target: Actual next latent vector.
+        """
+        target = target.unsqueeze(1).expand_as(mu)
+        prob = (1.0 / torch.sqrt(2.0 * np.pi * sigma**2)) * torch.exp(-0.5 * ((target - mu) / sigma)**2)
+        prob = torch.sum(pi * prob, dim=1)
+        nll = -torch.log(prob + 1e-8)
+        return torch.mean(nll)
