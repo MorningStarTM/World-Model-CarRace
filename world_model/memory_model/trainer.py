@@ -59,5 +59,13 @@ class MDNRNNTrainer:
             print(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss / len(train_loader)}")
 
 
-            
+    def save_model(self, path):
+        """
+        Save the trained MDN-RNN model.
+        
+        Parameters:
+        - path: File path to save the model.
+        """
+        torch.save(self.model.state_dict(), path)
+        print(f"Model saved to {path}")
     
