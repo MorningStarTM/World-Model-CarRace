@@ -39,3 +39,49 @@ class MDNRNNDatasetCreator:
         with torch.no_grad():
             latent_vector, _ = self.vae_encoder(image_tensor)
         return latent_vector.squeeze(0).cpu().numpy()  # Remove batch dimension
+
+
+    def create_dataset(self, data_file):
+        """
+        Create a dataset with latent vectors, actions, and next latent vectors.
+        
+        Parameters:
+        - data_file: CSV file containing the original dataset with 'obs', 'action', and 'next_obs' columns.
+        
+        Returns:
+        - DataFrame with latent_space, action, and next_latent_space columns.
+        """
+        data = pd.read_csv(data_file)
+
+        latent_vectors = []
+        actions = []
+        next_latent_vectors = []
+
+        for index, row in data.iterrows():
+            # Load and compress the observation image
+            obs_path = os.path.join(self.output_folder, row['obs'])
+            obs_image = self.load_image(obs_path)
+            latent_vector = self.compress_to_latent(obs_image)
+
+            # Load and compress the next observation image
+            next_obs_path = os.path.join(self.output_folder, row['next_obs'])
+            next_obs_image = self.load_image(next_obs_path)
+            next_latent_vector = self.compress_to_latent(next_obs_image)
+
+            # Collect latent vectors and corresponding action
+            latent_vectors.append(latent_vector)
+            actions.append(row['action'])  # Assuming actions are stored as integers/floats
+            next_latent_vectors.append(next_latent_vector)
+
+        # Create a DataFrame with the latent vectors, actions, and next latent vectors
+        dataset = pd.DataFrame({
+            'latent_space': latent_vectors,
+            'action': actions,
+            'next_latent_space': next_latent_vectors
+        })
+
+        # Save the DataFrame to a CSV or pickle file
+        dataset.to_pickle(os.path.join(self.output_folder, 'mdn_rnn_dataset.pkl'))
+        print(f"Dataset saved to {self.output_folder}/mdn_rnn_dataset.pkl")
+        
+        return dataset
