@@ -6,6 +6,7 @@ class LSTM_MDN_Model(nn.Module):
         super(LSTM_MDN_Model, self).__init__()
         self.num_gaussians = num_gaussians
         self.latent_dim = latent_dim
+        self.hidden_dim = hidden_dim
 
         #LSTM layer
         self.lstm = nn.LSTM(latent_dim + action_dim, hidden_dim, self.num_gaussians)
@@ -36,4 +37,7 @@ class LSTM_MDN_Model(nn.Module):
 
         return pi, mu, sigma, hidden_state
     
-    
+    def init_hidden(self, batch_size):
+        # Initialize hidden and cell states to zeros
+        return (torch.zeros(1, batch_size, self.hidden_dim),
+                torch.zeros(1, batch_size, self.hidden_dim))
