@@ -23,3 +23,13 @@ class MDNRNNDatasetCreator:
             transforms.Resize((image_size, image_size)),
             transforms.ToTensor(),
         ])
+
+
+    def load_image(self, image_path):
+        """
+        Load an image and apply the necessary transformations.
+        """
+        image = Image.open(image_path).convert('RGB')
+        return self.transform(image).unsqueeze(0)  # Add batch dimension
+    
+    
