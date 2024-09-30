@@ -97,3 +97,35 @@ class MDNRNNTrainer:
         prob = torch.sum(pi * prob, dim=1)
         nll = -torch.log(prob + 1e-8)
         return torch.mean(nll)
+    
+
+    def evaluate(self, test_loader):
+        """
+        Evaluate the trained MDN-RNN model on a test dataset.
+        
+        Parameters:
+        - test_loader: DataLoader providing batches of (latent_vector, action, next_latent_vector).
+        """
+        self.model.eval()
+        total_loss = 0
+        
+        with torch.no_grad():
+            for latent_vector, action, next_latent_vector in test_loader:
+                latent_vector = latent_vector.to(self.device)
+                action = action.to(self.device)
+                next_latent_vector = next_latent_vector.to(self.device)
+                
+                batch_size = latent_vector.size(0)
+                hidden_state = self.model.init_hidden(batch_size)
+                hidden_state = (hidden_state[0].to(self.device), hidden_state[1].to(self.device))
+                
+                # Forward pass
+                pi, mu, sigma, hidden_state = self.model(latent_vector, action, hidden_state)
+                
+                # Compute loss
+                loss = self.criterion(pi, mu, sigma, next_latent_vector)
+                total_loss += loss.item()
+        
+        avg_loss = total_loss / len(test_loader)
+        print(f"Evaluation Loss: {avg_loss}")
+        return avg_loss
