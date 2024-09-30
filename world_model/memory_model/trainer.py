@@ -69,3 +69,14 @@ class MDNRNNTrainer:
         torch.save(self.model.state_dict(), path)
         print(f"Model saved to {path}")
     
+
+    def load_model(self, path):
+        """
+        Load a pre-trained MDN-RNN model.
+        
+        Parameters:
+        - path: File path to load the model.
+        """
+        self.model.load_state_dict(torch.load(path, map_location=self.device))
+        self.model.to(self.device)
+        print(f"Model loaded from {path}")
