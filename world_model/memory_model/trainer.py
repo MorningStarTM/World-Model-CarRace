@@ -129,3 +129,32 @@ class MDNRNNTrainer:
         avg_loss = total_loss / len(test_loader)
         print(f"Evaluation Loss: {avg_loss}")
         return avg_loss
+    
+
+    def sample_latent_vector(self, latent_vector, action, hidden_state):
+        """
+        Sample the next latent vector from the MDN-RNN output.
+        
+        Parameters:
+        - latent_vector: Current latent vector (VAE output).
+        - action: Action taken at this step.
+        - hidden_state: Current hidden state of the RNN.
+        
+        Returns:
+        - Next latent vector sampled from the predicted distribution.
+        """
+        latent_vector = latent_vector.to(self.device)
+        action = action.to(self.device)
+        
+        # Forward pass through MDN-RNN
+        pi, mu, sigma, hidden_state = self.model(latent_vector, action, hidden_state)
+        
+        # Sample from the Gaussian mixture
+        pi = pi.squeeze().cpu().detach().numpy()
+        pi_idx = np.random.choice(len(pi), p=pi)  # Choose one Gaussian component based on pi
+        
+        mu = mu[:, pi_idx].squeeze().cpu().detach().numpy()
+        sigma = sigma[:, pi_idx].squeeze().cpu().detach().numpy()
+        
+        next_latent_vector = np.random.normal(mu, sigma)  # Sample from the chosen Gaussian
+        return torch.tensor(next_latent_vector).float().to(self.device), hidden_state
