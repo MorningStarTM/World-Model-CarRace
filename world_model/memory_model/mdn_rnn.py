@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 
 class LSTM_MDN_Model(nn.Module):
     def __init__(self, latent_dim, action_dim, hidden_dim, num_gaussians):
@@ -41,3 +42,19 @@ class LSTM_MDN_Model(nn.Module):
         # Initialize hidden and cell states to zeros
         return (torch.zeros(1, batch_size, self.hidden_dim),
                 torch.zeros(1, batch_size, self.hidden_dim))
+    
+
+    def mdn_loss(pi, mu, sigma, target):
+        # Reshape target to match the shape of mu
+        target = target.unsqueeze(1).expand_as(mu)
+        
+        # Compute Gaussian probabilities
+        prob = (1.0 / torch.sqrt(2.0 * np.pi * sigma**2)) * torch.exp(-0.5 * ((target - mu) / sigma)**2)
+        
+        # Sum probabilities across all Gaussians
+        prob = torch.sum(pi * prob, dim=1)
+        
+        # Compute negative log-likelihood
+        nll = -torch.log(prob + 1e-8)  # Add small epsilon to prevent log(0)
+        return torch.mean(nll)
+
