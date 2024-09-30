@@ -32,4 +32,10 @@ class MDNRNNDatasetCreator:
         image = Image.open(image_path).convert('RGB')
         return self.transform(image).unsqueeze(0)  # Add batch dimension
     
-    
+    def compress_to_latent(self, image_tensor):
+        """
+        Pass an image through the VAE encoder to get the latent vector.
+        """
+        with torch.no_grad():
+            latent_vector, _ = self.vae_encoder(image_tensor)
+        return latent_vector.squeeze(0).cpu().numpy()  # Remove batch dimension
