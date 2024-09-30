@@ -85,3 +85,22 @@ class MDNRNNDatasetCreator:
         print(f"Dataset saved to {self.output_folder}/mdn_rnn_dataset.pkl")
         
         return dataset
+    
+
+
+"""
+# Assume VAE encoder is pre-trained and loaded
+vae_encoder = load_pretrained_vae()  # Function to load your VAE encoder
+
+# Initialize dataset creator
+dataset_creator = MDNRNNDatasetCreator(
+    vae_encoder=vae_encoder, 
+    image_size=64,  # Example size, should match VAE input size
+    latent_dim=32,  # Example latent dimension
+    output_folder='path_to_output_folder'
+)
+
+# Create dataset using the CSV file with obs, actions, and next_obs
+mdn_rnn_dataset = dataset_creator.create_dataset('path_to_csv_file.csv')
+
+"""
