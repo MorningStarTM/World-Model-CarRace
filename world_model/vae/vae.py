@@ -60,3 +60,9 @@ class ConvVAE(nn.Module):
         x = x.view(x.size(0), 256, 6, 6)  # Reshape back to convolutional size
         x = self.decoder(x)
         return x
+    
+    def forward(self, x):
+        mean, logvar = self.encode(x)
+        z = self.reparameterization(mean, logvar)
+        x_hat = self.decode(z)
+        return x_hat, mean, logvar
