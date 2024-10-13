@@ -4,42 +4,46 @@ from .vae import ConvVAE
 import torch.optim as optim
 import torch.nn as nn
 import matplotlib.pyplot as plt
+import torch.nn.functional as F
 
 
 class VAETrainer:
     def __init__(self, model:ConvVAE, batch_size:int) -> None:
-        self.model = model
-        self.optimizer = optim.Adam(model.parameters(), lr=1e-3)
-        self.device = torch.device('cuda' if torch.cuda.is_available() else "cpu")
-        self.batch_size = batch_size
+        pass
 
-
-    def loss_function(self, x, x_hat, mean, log_var):
-        reproduction_loss = nn.functional.binary_cross_entropy(x_hat, x, reduction='sum')
-        KLD = - 0.5 * torch.sum(1+ log_var - mean.pow(2) - log_var.exp())
-
-        return reproduction_loss + KLD
+    def vae_loss(self, reconstructed, original, mu, logvar):
+        # Reconstruction loss
+        recon_loss = F.mse_loss(reconstructed, original, reduction='sum')
+        
+        # KL Divergence loss
+        kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     
-    def train(self, train_loader, epochs):
-        self.model.train()
+        return recon_loss + kl_loss
+
+    
+    def train_vae(self, model, dataloader, epochs=20, learning_rate=1e-3, device='cuda'):
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        model.to(device)
+        model.train()
+
         for epoch in range(epochs):
-            overall_loss = 0
-            for batch_idx, (x, _) in enumerate(train_loader):
-                x = x.to(self.device)
+            running_loss = 0.0
+            for i, data in enumerate(dataloader):
+                images = data
+                images = images.to(device)
 
-                self.optimizer.zero_grad()
-
-                x_hat, mean, log_var = self.model(x)
-                loss = self.loss_function(x, x_hat, mean, log_var)
-                
-                overall_loss += loss.item()
-                
+                optimizer.zero_grad()
+                reconstructed, mu, logvar = model(images)
+                loss = self.vae_loss(reconstructed, images, mu, logvar)
                 loss.backward()
-                self.optimizer.step()
+                optimizer.step()
 
-            print("\tEpoch", epoch + 1, "\tAverage Loss: ", overall_loss/(batch_idx*self.batch_size))
-            self.generate_and_plot_images()
-        return overall_loss
+                running_loss += loss.item()
+            
+            print(f"Epoch [{epoch+1}/{epochs}], Loss: {running_loss / len(dataloader.dataset):.4f}")
+
+            # Generate images at the end of each epoch
+            self.generate_and_plot_images(model, epoch, device)
 
     
     def generate_and_plot_images(self, num_images=8):
