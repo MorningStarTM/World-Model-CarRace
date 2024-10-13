@@ -1,6 +1,6 @@
 import torch
 import os
-from vae import ConvVAE
+from .vae import ConvVAE
 import torch.optim as optim
 import torch.nn as nn
 import matplotlib.pyplot as plt
