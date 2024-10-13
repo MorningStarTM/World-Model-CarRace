@@ -3,21 +3,41 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class ConvVAE(nn.Module):
-
-    def __init__(self, input_channels=1, hidden_dim=256, latent_dim=64):
+    def __init__(self, input_channels=3, latent_dim=200, device='cuda'):
         super(ConvVAE, self).__init__()
 
-        # Encoder: using conv layers
+        # Encoder
         self.encoder = nn.Sequential(
-            nn.Conv2d(input_channels, 32, kernel_size=4, stride=2, padding=1),  # (batch_size, 32, 14, 14)
+            nn.Conv2d(input_channels, 32, kernel_size=4, stride=2, padding=1),  # 96x96 -> 48x48
             nn.LeakyReLU(0.2),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=1),  # (batch_size, 64, 7, 7)
+            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=1),  # 48x48 -> 24x24
             nn.LeakyReLU(0.2),
-            nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1),  # (batch_size, 128, 3, 3)
+            nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1),  # 24x24 -> 12x12
             nn.LeakyReLU(0.2),
-            nn.Conv2d(128, hidden_dim, kernel_size=3)  # (batch_size, hidden_dim, 1, 1)
+            nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1),  # 12x12 -> 6x6
+            nn.LeakyReLU(0.2)
+        )
+        
+        # Latent space: mean and variance
+        self.fc_mean = nn.Linear(256 * 6 * 6, latent_dim)
+        self.fc_logvar = nn.Linear(256 * 6 * 6, latent_dim)
+        
+        # Decoder: FC layer followed by transposed convolutions
+        self.fc_decode = nn.Linear(latent_dim, 256 * 6 * 6)
+        
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1),  # 6x6 -> 12x12
+            nn.LeakyReLU(0.2),
+            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),  # 12x12 -> 24x24
+            nn.LeakyReLU(0.2),
+            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),  # 24x24 -> 48x48
+            nn.LeakyReLU(0.2),
+            nn.ConvTranspose2d(32, input_channels, kernel_size=4, stride=2, padding=1),  # 48x48 -> 96x96
+            nn.Sigmoid()  # Output between 0 and 1 for images
         )
 
-        # Latent mean and log variance
-        self.mean_layer = nn.Linear(hidden_dim, latent_dim)
-        self.logvar_layer = nn.Linear(hidden_dim, latent_dim)
+        self.device = device
+        self.to(device)
+
+        
+
