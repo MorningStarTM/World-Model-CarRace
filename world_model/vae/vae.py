@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class ConvVAE(nn.Module):
-    def __init__(self, input_channels=3, latent_dim=200, device='cuda'):
+    def __init__(self, input_channels=3, latent_dim=200):
         super(ConvVAE, self).__init__()
 
         # Encoder
@@ -37,7 +37,7 @@ class ConvVAE(nn.Module):
         )
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.to(device)
+        self.to(self.device)
 
 
     def encode(self, x):
