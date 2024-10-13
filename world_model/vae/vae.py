@@ -39,5 +39,13 @@ class ConvVAE(nn.Module):
         self.device = device
         self.to(device)
 
-        
+
+    def encode(self, x):
+        x = self.encoder(x)
+        x = x.view(x.size(0), -1)  # Flatten
+        mean = self.fc_mean(x)
+        logvar = self.fc_logvar(x)
+        return mean, logvar
+
+
 
