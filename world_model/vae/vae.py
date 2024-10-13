@@ -58,3 +58,13 @@ class ConvVAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         x_reconstructed = self.decode(z)
         return x_reconstructed, mu, logvar
+    
+    def save(self, path):
+        torch.save(self.decoder.state_dict(), path)
+        torch.save(self.encoder.state_dict(), path)
+
+    def load(self, path):
+        self.encoder.load_state_dict(torch.load(path))
+        self.decoder.load_state_dict(torch.load(path))
+
+        
