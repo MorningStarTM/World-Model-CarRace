@@ -36,7 +36,7 @@ class ConvVAE(nn.Module):
             nn.Sigmoid()  # Output between 0 and 1 for images
         )
 
-        self.device = device
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.to(device)
 
 

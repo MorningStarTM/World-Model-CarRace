@@ -11,7 +11,7 @@ output_folder = 'car_racing_images'
 os.makedirs(output_folder, exist_ok=True)
 
 # Define the number of episodes and steps per episode
-num_episodes = 10
+num_episodes = 100
 steps_per_episode = 100
 
 # Generate data
@@ -23,7 +23,7 @@ for episode in range(num_episodes):
         
         # Save the observation as an image
         img = Image.fromarray(img)
-        img.save(os.path.join(output_folder, f'episode_{episode}_step_{step}.png'))
+        img.save(os.path.join(output_folder, f'image_{episode}_{step}.png'))
 
         # Take a random action
         action = env.action_space.sample()
