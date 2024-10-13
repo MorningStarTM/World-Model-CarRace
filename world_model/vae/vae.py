@@ -5,6 +5,7 @@ import torch.nn.functional as F
 class ConvVAE(nn.Module):
     def __init__(self, input_channels=3, latent_dim=200):
         super(ConvVAE, self).__init__()
+        self.latent_dim = latent_dim
 
         # Encoder
         self.encoder = nn.Sequential(
