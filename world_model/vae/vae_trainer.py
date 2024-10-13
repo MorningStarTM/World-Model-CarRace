@@ -42,3 +42,22 @@ class VAETrainer:
         return overall_loss
 
     
+    def generate_and_plot_images(self, num_images=8):
+        """Generate and plot images after each epoch."""
+        self.model.eval()  # Set the model to evaluation mode
+
+        with torch.no_grad():
+            # Sample random latent vectors
+            z = torch.randn(num_images, self.model.latent_dim).to(self.device)
+            
+            # Decode the latent vectors into images
+            generated_images = self.model.decode(z).cpu()
+
+        # Plot the generated images
+        fig, axes = plt.subplots(1, num_images, figsize=(num_images * 2, 2))
+        
+        for i in range(num_images):
+            axes[i].imshow(generated_images[i].permute(1, 2, 0))  # Adjusting tensor shape for plotting
+            axes[i].axis('off')  # Turn off axis labels
+
+        plt.show()
