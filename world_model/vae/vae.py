@@ -49,3 +49,8 @@ class ConvVAE(nn.Module):
 
 
 
+    def reparameterization(self, mean, logvar):
+        std = torch.exp(0.5 * logvar)  # Standard deviation
+        epsilon = torch.randn_like(std).to(self.device)  # Sample epsilon
+        z = mean + std * epsilon  # Reparameterization trick
+        return z
