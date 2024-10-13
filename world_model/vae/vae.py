@@ -54,3 +54,9 @@ class ConvVAE(nn.Module):
         epsilon = torch.randn_like(std).to(self.device)  # Sample epsilon
         z = mean + std * epsilon  # Reparameterization trick
         return z
+    
+    def decode(self, z):
+        x = self.fc_decode(z)
+        x = x.view(x.size(0), 256, 6, 6)  # Reshape back to convolutional size
+        x = self.decoder(x)
+        return x
