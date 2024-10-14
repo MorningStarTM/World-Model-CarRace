@@ -50,3 +50,38 @@ class MemoryData:
         
         return latent.squeeze().cpu().numpy()
     
+
+    def process_and_save(self, output_csv):
+        """
+        Process the images and save the encoded data into a new CSV file.
+        
+        Args:
+            output_csv: The path where the encoded CSV file will be saved.
+        """
+        df = self.load_data()
+        encoded_data = []
+
+        for idx, row in df[0:1].iterrows():
+            current_img_name = row['image']
+            next_img_name = row['next_image']
+            action = row['action']
+
+            # Construct full paths for the current and next images
+            current_img_path = os.path.join(self.image_folder, current_img_name)
+            next_img_path = os.path.join(self.image_folder, next_img_name)
+
+            # Encode the images to latent space
+            encoded_current = self.encode_observation(current_img_path)
+            encoded_next = self.encode_observation(next_img_path)
+
+            # Add the encoded data to the list
+            encoded_data.append([encoded_current.tolist(), action, encoded_next.tolist()])
+
+        # Convert the encoded data into a DataFrame
+        encoded_df = pd.DataFrame(encoded_data, columns=['encoded_current', 'action', 'encoded_next'])
+
+        # Save the DataFrame to a CSV file
+        encoded_df.to_csv(output_csv, index=False)
+
+        print(f"Encoded dataset saved successfully to {output_csv}")
+    
