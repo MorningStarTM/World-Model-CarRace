@@ -2,20 +2,30 @@ import torch
 import pandas as pd
 import cv2
 import os
+from world_model.ae.autoencoder import Autoencoder
+from world_model.vae.vae import ConvVAE
 
 class MemoryData:
-    def __init__(self, model, image_folder, csv_file, device='cpu'):
+    def __init__(self, model:str, image_folder, csv_file, device='cpu'):
         """
         Initialize the DataProcessor with the VAE model, image folder, and CSV file.
         
         Args:
-            model: The pre-trained VAE model.
+            model: The model type.
             image_folder: The root folder where images are stored.
             csv_file: The path to the CSV file containing the image names and actions.
             latent_dim: The dimensionality of the latent space of the model.
             device: The device to run the model on ('cpu' or 'cuda').
         """
-        self.model = model.to(device)
+        if model == "autoencoder":
+            self.model = Autoencoder()
+            self.model.to(device)
+            self.model.load(encoder_path="world_model\\models\\autoencoder\\encoder.pth", decoder_path="world_model\\models\\autoencoder\\decoder.pth")
+        elif model == "vae":
+            self.model = ConvVAE(200)
+            self.model.to(device)
+            self.model.load(encoder_path="world_model\\models\\vae\\encoder.pth", decoder_path="world_model\\models\\vae\\decoder.pth")
+
         self.model.eval()  # Set the model to evaluation mode
         self.image_folder = image_folder
         self.csv_file = csv_file
