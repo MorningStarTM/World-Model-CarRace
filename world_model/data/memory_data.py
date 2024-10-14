@@ -28,3 +28,25 @@ class MemoryData:
         """
         return pd.read_csv(self.csv_file)
     
+
+    def encode_observation(self, img_path):
+        """
+        Encode an image to its latent representation using the VAE model.
+        
+        Args:
+            img_path: The path to the image file.
+        
+        Returns:
+            The latent vector as a numpy array.
+        """
+        image = cv2.imread(img_path)
+        image = cv2.resize(image, (96, 96))
+        img_tensor = torch.from_numpy(image).float() / 255.0
+        img_tensor = img_tensor.permute(2, 0, 1)  # Change shape to (C, H, W)
+        img_batch = img_tensor.unsqueeze(0).to(self.device)  # Add batch dimension
+
+        with torch.no_grad():
+            latent = self.model.encoder(img_batch)
+        
+        return latent.squeeze().cpu().numpy()
+    
