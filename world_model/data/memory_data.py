@@ -22,4 +22,9 @@ class MemoryData:
         self.device = device
 
 
+    def load_data(self):
+        """
+        Load the dataset CSV file into a DataFrame.
+        """
+        return pd.read_csv(self.csv_file)
     
