@@ -6,7 +6,7 @@ from world_model.ae.autoencoder import Autoencoder
 from world_model.vae.vae import ConvVAE
 
 class MemoryData:
-    def __init__(self, model:str, image_folder, csv_file, device='cpu'):
+    def __init__(self, model, image_folder, csv_file, device='cpu'):
         """
         Initialize the DataProcessor with the VAE model, image folder, and CSV file.
         
@@ -17,14 +17,9 @@ class MemoryData:
             latent_dim: The dimensionality of the latent space of the model.
             device: The device to run the model on ('cpu' or 'cuda').
         """
-        if model == "autoencoder":
-            self.model = Autoencoder()
-            self.model.to(device)
-            self.model.load(encoder_path="world_model\\models\\autoencoder\\encoder.pth", decoder_path="world_model\\models\\autoencoder\\decoder.pth")
-        elif model == "vae":
-            self.model = ConvVAE(200)
-            self.model.to(device)
-            self.model.load(encoder_path="world_model\\models\\vae\\encoder.pth", decoder_path="world_model\\models\\vae\\decoder.pth")
+        
+        self.model = model
+        self.model.to(device)
 
         self.model.eval()  # Set the model to evaluation mode
         self.image_folder = image_folder
