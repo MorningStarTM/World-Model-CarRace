@@ -1,1 +1,1 @@
-from .ppo_generation import data_generation
+from .memory_data import MemoryData
