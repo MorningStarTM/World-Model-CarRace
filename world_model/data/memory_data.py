@@ -71,6 +71,11 @@ class MemoryData:
             next_img_name = row['next_image']
             action = row['action']
 
+            # Skip encoding if next image doesn't exist (end of episode case)
+            if not os.path.exists(os.path.join(self.image_folder, next_img_name)):
+                print(f"Skipping {current_img_name} as the next image {next_img_name} does not exist.")
+                continue
+
             # Construct full paths for the current and next images
             current_img_path = os.path.join(self.image_folder, current_img_name)
             next_img_path = os.path.join(self.image_folder, next_img_name)
@@ -89,4 +94,3 @@ class MemoryData:
         encoded_df.to_csv(output_csv, index=False)
 
         print(f"Encoded dataset saved successfully to {output_csv}")
-    
