@@ -66,7 +66,7 @@ class MemoryData:
         df = self.load_data()
         encoded_data = []
 
-        for idx, row in df[0:1].iterrows():
+        for idx, row in df.iterrows():
             current_img_name = row['image']
             next_img_name = row['next_image']
             action = row['action']
