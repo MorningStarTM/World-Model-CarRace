@@ -55,7 +55,7 @@ class VAETrainer:
                 print(f"model saved at {self.save_path}")
 
             # Generate images at the end of each epoch
-            self.generate_and_plot_images(self.model, epoch, self.device)
+            self.generate_and_plot_images()
 
 
 
