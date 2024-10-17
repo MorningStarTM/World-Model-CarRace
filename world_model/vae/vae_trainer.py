@@ -25,10 +25,10 @@ class VAETrainer:
         return recon_loss + kl_loss
 
     
-    def train_vae(self, model, dataloader, epochs=20, learning_rate=1e-3):
-        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-        model.to(self.device)
-        model.train()
+    def train_vae(self, dataloader, epochs=20, learning_rate=1e-3):
+        optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
+        self.model.to(self.device)
+        self.model.train()
 
         for epoch in range(epochs):
             running_loss = 0.0
@@ -37,7 +37,7 @@ class VAETrainer:
                 images = images.to(self.device)
 
                 optimizer.zero_grad()
-                reconstructed, mu, logvar = model(images)
+                reconstructed, mu, logvar = self.model(images)
                 loss = self.vae_loss(reconstructed, images, mu, logvar)
                 loss.backward()
                 optimizer.step()
@@ -55,7 +55,7 @@ class VAETrainer:
                 print(f"model saved at {self.save_path}")
 
             # Generate images at the end of each epoch
-            self.generate_and_plot_images(model, epoch, self.device)
+            self.generate_and_plot_images(self.model, epoch, self.device)
 
 
 
