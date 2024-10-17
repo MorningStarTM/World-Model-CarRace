@@ -8,8 +8,12 @@ import torch.nn.functional as F
 
 
 class VAETrainer:
-    def __init__(self, model:ConvVAE, batch_size:int) -> None:
-        pass
+    def __init__(self, model:ConvVAE, batch_size:int, save_path: str) -> None:
+        self.model = model
+        self.batch_size = batch_size
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.save_path = save_path
+        self.best_loss = float('inf')
 
     def vae_loss(self, reconstructed, original, mu, logvar):
         # Reconstruction loss
@@ -21,16 +25,16 @@ class VAETrainer:
         return recon_loss + kl_loss
 
     
-    def train_vae(self, model, dataloader, epochs=20, learning_rate=1e-3, device='cuda'):
+    def train_vae(self, model, dataloader, epochs=20, learning_rate=1e-3):
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-        model.to(device)
+        model.to(self.device)
         model.train()
 
         for epoch in range(epochs):
             running_loss = 0.0
             for i, data in enumerate(dataloader):
                 images = data
-                images = images.to(device)
+                images = images.to(self.device)
 
                 optimizer.zero_grad()
                 reconstructed, mu, logvar = model(images)
@@ -40,12 +44,21 @@ class VAETrainer:
 
                 running_loss += loss.item()
             
+            avg_loss = running_loss / len(dataloader.dataset)
+            
             print(f"Epoch [{epoch+1}/{epochs}], Loss: {running_loss / len(dataloader.dataset):.4f}")
 
-            # Generate images at the end of each epoch
-            self.generate_and_plot_images(model, epoch, device)
+            # Check if the model's loss has reduced
+            if avg_loss < self.best_loss:
+                self.best_loss = avg_loss
+                self.model.save(self.save_path)
+                print(f"model saved at {self.save_path}")
 
-    
+            # Generate images at the end of each epoch
+            self.generate_and_plot_images(model, epoch, self.device)
+
+
+
     def generate_and_plot_images(self, num_images=8):
         """Generate and plot images after each epoch."""
         self.model.eval()  # Set the model to evaluation mode
