@@ -1,6 +1,6 @@
 import torch
 import os
-from .vae import ConvVAE
+from world_model.vae import ConvVAE
 import torch.optim as optim
 import torch.nn as nn
 import matplotlib.pyplot as plt
@@ -8,12 +8,13 @@ import torch.nn.functional as F
 
 
 class VAETrainer:
-    def __init__(self, model:ConvVAE, batch_size:int, save_path: str) -> None:
+    def __init__(self, model:ConvVAE, batch_size:int, beta=4, save_path: str=None) -> None:
         self.model = model
         self.batch_size = batch_size
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.save_path = save_path
         self.best_loss = float('inf')
+        self.beta = beta
 
     def vae_loss(self, reconstructed, original, mu, logvar):
         # Reconstruction loss
@@ -22,7 +23,7 @@ class VAETrainer:
         # KL Divergence loss
         kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     
-        return recon_loss + kl_loss
+        return recon_loss + self.beta * kl_loss
 
     
     def train_vae(self, dataloader, epochs=20, learning_rate=1e-3):
@@ -33,7 +34,7 @@ class VAETrainer:
         for epoch in range(epochs):
             running_loss = 0.0
             for i, data in enumerate(dataloader):
-                images = data
+                images = data[0] if isinstance(data, (list, tuple)) else data
                 images = images.to(self.device)
 
                 optimizer.zero_grad()
@@ -44,7 +45,7 @@ class VAETrainer:
 
                 running_loss += loss.item()
             
-            avg_loss = running_loss / len(dataloader.dataset)
+            avg_loss = running_loss / self.batch_size
             
             print(f"Epoch [{epoch+1}/{epochs}], Loss: {running_loss / len(dataloader.dataset):.4f}")
 
