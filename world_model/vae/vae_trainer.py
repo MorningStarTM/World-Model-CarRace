@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 
 class VAETrainer:
-    def __init__(self, model:ConvVAE, batch_size:int, beta=4, save_path: str=None) -> None:
+    def __init__(self, model:ConvVAE, batch_size:int, save_path: str, beta=4) -> None:
         self.model = model
         self.batch_size = batch_size
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
