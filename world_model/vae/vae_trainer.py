@@ -18,10 +18,11 @@ class VAETrainer:
 
     def vae_loss(self, reconstructed, original, mu, logvar):
         # Reconstruction loss
-        recon_loss = F.mse_loss(reconstructed, original, reduction='sum')
+        recon_loss = F.mse_loss(reconstructed, original, reduction='mean')
         
         # KL Divergence loss
-        kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+        #kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+        kl_loss = -0.5 * torch.mean(1 + logvar - mu.pow(2) - logvar.exp())
     
         return recon_loss + self.beta * kl_loss
 
