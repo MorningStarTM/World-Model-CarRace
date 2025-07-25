@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 
 class VAETrainer:
-    def __init__(self, model:ConvVAE, batch_size:int, save_path: str, beta=2) -> None:
+    def __init__(self, model:ConvVAE, batch_size:int, save_path: str, beta=0.5) -> None:
         self.model = model
         self.batch_size = batch_size
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -22,9 +22,9 @@ class VAETrainer:
         
         # KL Divergence loss
         #kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-        kl_loss = -0.5 * torch.mean(1 + logvar - mu.pow(2) - logvar.exp())
-    
-        return recon_loss + self.beta * kl_loss
+        kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+
+        return recon_loss + (self.beta * kl_loss)
 
     
     def train_vae(self, dataloader, epochs=20, learning_rate=1e-3):
