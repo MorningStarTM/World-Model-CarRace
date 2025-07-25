@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 
 class VAETrainer:
-    def __init__(self, model:ConvVAE, batch_size:int, save_path: str, beta=0.5) -> None:
+    def __init__(self, model:ConvVAE, batch_size:int, save_path: str, beta=0.005) -> None:
         self.model = model
         self.batch_size = batch_size
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -18,11 +18,11 @@ class VAETrainer:
 
     def vae_loss(self, reconstructed, original, mu, logvar):
         # Reconstruction loss
-        recon_loss = F.mse_loss(reconstructed, original, reduction='mean')
+        recon_loss = F.mse_loss(reconstructed, original, reduction='sum')
         
         # KL Divergence loss
-        #kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
         kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+        #kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
         return recon_loss + (self.beta * kl_loss)
 
