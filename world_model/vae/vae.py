@@ -2,6 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import os
+from world_model.logger import logger
+
+
 
 class ConvVAE(nn.Module):
     def __init__(self, latent_dim):
@@ -62,9 +65,10 @@ class ConvVAE(nn.Module):
     def save(self, path):
         torch.save(self.decoder.state_dict(), os.path.join(path, "decoder.pth"))
         torch.save(self.encoder.state_dict(), os.path.join(path, "encoder.pth"))
+        logger.info(f"VAE model saved at {path}")
 
     def load(self, path):
         self.encoder.load_state_dict(torch.load(os.path.join(path, "encoder.pth")))
         self.decoder.load_state_dict(torch.load(os.path.join(path, "decoder.pth")))
-
+        logger.info(f"VAE model loaded from {path}")
         

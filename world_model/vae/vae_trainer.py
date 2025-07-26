@@ -5,6 +5,8 @@ import torch.optim as optim
 import torch.nn as nn
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
+from world_model.logger import logger
+
 
 
 class VAETrainer:
@@ -48,13 +50,13 @@ class VAETrainer:
             
             avg_loss = running_loss / self.batch_size
             
-            print(f"Epoch [{epoch+1}/{epochs}], Loss: {running_loss / len(dataloader.dataset):.4f}")
+            logger.info(f"Epoch [{epoch+1}/{epochs}], Loss: {running_loss / len(dataloader.dataset):.4f}")
 
             # Check if the model's loss has reduced
             if avg_loss < self.best_loss:
                 self.best_loss = avg_loss
                 self.model.save(self.save_path)
-                print(f"model saved at {self.save_path}")
+                logger.info(f"model saved at {self.save_path}")
 
             # Generate images at the end of each epoch
             self.generate_and_plot_images()
