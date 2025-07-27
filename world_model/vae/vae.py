@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import os
 from world_model.logger import logger
-
+import torch.optim as optim
 
 
 class ConvVAE(nn.Module):
@@ -62,13 +62,26 @@ class ConvVAE(nn.Module):
         x_reconstructed = self.decode(z)
         return x_reconstructed, mu, logvar
     
-    def save(self, path):
-        torch.save(self.decoder.state_dict(), os.path.join(path, "decoder.pth"))
-        torch.save(self.encoder.state_dict(), os.path.join(path, "encoder.pth"))
-        logger.info(f"VAE model saved at {path}")
+    def save(self, path, optimizer:optim=None):
+        os.makedirs(path, exist_ok=True)
+        checkpoint = {
+            'model': self.state_dict(),
+        }
+        if optimizer is not None:
+            checkpoint['optimizer'] = optimizer.state_dict()
+        torch.save(checkpoint, os.path.join(path, 'vae_checkpoint.pth'))
+        logger.info(f"VAE checkpoint (model+optimizer) saved at {os.path.join(path, 'vae_checkpoint.pth')}")
 
-    def load(self, path):
-        self.encoder.load_state_dict(torch.load(os.path.join(path, "encoder.pth")))
-        self.decoder.load_state_dict(torch.load(os.path.join(path, "decoder.pth")))
-        logger.info(f"VAE model loaded from {path}")
+    def load(self, path, optimizer=None):
+        checkpoint_path = os.path.join(path, 'vae_checkpoint.pth')
+        checkpoint = torch.load(checkpoint_path, map_location='cpu')
+        self.load_state_dict(checkpoint['model'])
+        if optimizer is not None and 'optimizer' in checkpoint:
+            optimizer.load_state_dict(checkpoint['optimizer'])
+        logger.info(f"VAE checkpoint loaded from {checkpoint_path}")
+
+
+    def count_parameters(model):
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
         

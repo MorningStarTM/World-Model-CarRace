@@ -55,7 +55,7 @@ class VAETrainer:
             # Check if the model's loss has reduced
             if avg_loss < self.best_loss:
                 self.best_loss = avg_loss
-                self.model.save(self.save_path)
+                self.model.save(self.save_path, optimizer=optimizer)
                 logger.info(f"model saved at {self.save_path}")
 
             # Generate images at the end of each epoch
