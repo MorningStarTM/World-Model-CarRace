@@ -20,13 +20,13 @@ class VAETrainer:
 
     def vae_loss(self, reconstructed, original, mu, logvar):
         # Reconstruction loss
-        recon_loss = F.mse_loss(reconstructed, original, reduction='sum')
+        recon_loss = F.mse_loss(reconstructed, original, size_average=False)
         
         # KL Divergence loss
-        kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+        kl_loss = -0.5 * torch.sum(1 + 2 * logvar - mu.pow(2) - (2 * logvar).exp())
         #kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
-        return recon_loss + (self.beta * kl_loss)
+        return recon_loss + kl_loss
 
     
     def train_vae(self, dataloader, epochs=20, learning_rate=1e-3):
@@ -65,6 +65,7 @@ class VAETrainer:
 
     def generate_and_plot_images(self, num_images=8):
         """Generate and plot images after each epoch."""
+        self.model.to(self.device)
         self.model.eval()  # Set the model to evaluation mode
 
         with torch.no_grad():
@@ -82,3 +83,4 @@ class VAETrainer:
             axes[i].axis('off')  # Turn off axis labels
 
         plt.show()
+
