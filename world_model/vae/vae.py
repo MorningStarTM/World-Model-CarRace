@@ -90,7 +90,9 @@ class ConvVAE(nn.Module):
 class WMVAE(nn.Module):
     def __init__(self, img_channel, latent_dim) -> None:
         super(WMVAE, self).__init__()
-
+        self.img_channel = img_channel
+        self.latent_dim = latent_dim
+        
         self.encoder = nn.Sequential(
             nn.Conv2d(img_channel, 32, kernel_size=4, stride=2),  # (B, 32, 48, 48)
             nn.ReLU(),
