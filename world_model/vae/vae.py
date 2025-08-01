@@ -92,7 +92,7 @@ class WMVAE(nn.Module):
         super(WMVAE, self).__init__()
         self.img_channel = img_channel
         self.latent_dim = latent_dim
-        
+
         self.encoder = nn.Sequential(
             nn.Conv2d(img_channel, 32, kernel_size=4, stride=2),  # (B, 32, 48, 48)
             nn.ReLU(),
@@ -138,6 +138,12 @@ class WMVAE(nn.Module):
         x = x.unsqueeze(-1).unsqueeze(-1)
         recon = self.decoder(x)
         return recon, mu, logvar
+    
+    def decode(self, z):
+        x = F.relu(self.fc1(z))
+        x = x.unsqueeze(-1).unsqueeze(-1)
+        return self.decoder(x)
+        
     
     def save(self, path, optimizer:optim=None):
         os.makedirs(path, exist_ok=True)
