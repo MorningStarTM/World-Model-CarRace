@@ -133,7 +133,6 @@ class WMVAE(nn.Module):
         z = eps.mul(sigma).add_(mu)
         
         x = F.relu(self.fc1(z))
-        print(x.shape)
         x = x.unsqueeze(-1).unsqueeze(-1)
         recon = self.decoder(x)
         return recon, mu, logvar
